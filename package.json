@@ -1,0 +1,19 @@
+{
+  "name": "zogakzip-be",
+  "version": "1.0.0",
+  "description": "조각집 백엔드 서비스 (Express + serverless-http)",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "nodemon api/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "serverless-http": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "keywords": [],
+  "license": "MIT"
+}
