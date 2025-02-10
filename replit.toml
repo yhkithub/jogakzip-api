@@ -1,0 +1,4 @@
+language = "nodejs"
+
+[run]
+command = "npm run dev"

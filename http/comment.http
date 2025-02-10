@@ -1,0 +1,13 @@
+
+### 댓글 생성
+POST http://localhost:4000/api/comments
+Content-Type: application/json
+
+{
+  "postId": "post-id",
+  "nickname": "테스터",
+  "content": "테스트 댓글입니다."
+}
+
+### 게시글의 댓글 목록 조회
+GET http://localhost:4000/api/posts/post-id/comments

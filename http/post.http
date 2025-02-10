@@ -1,0 +1,34 @@
+
+### 게시글 생성
+POST http://localhost:4000/api/posts
+Content-Type: application/json
+
+{
+  "groupId": "group-id",
+  "title": "Test Post",
+  "content": "Test Content",
+  "image": "image-url",
+  "tags": ["test", "api"],
+  "location": "Seoul"
+}
+
+### 게시글 목록 조회
+GET http://localhost:4000/api/posts
+
+### 게시글 상세 조회
+GET http://localhost:4000/api/posts/post-id
+
+### 게시글 수정
+PUT http://localhost:4000/api/posts/post-id
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  "content": "Updated Content",
+  "image": "updated-image-url",
+  "tags": ["updated", "test"],
+  "location": "Busan"
+}
+
+### 게시글 삭제
+DELETE http://localhost:4000/api/posts/post-id

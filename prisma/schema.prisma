@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,34 +10,57 @@ datasource db {
 }
 
 model Group {
-  id          String   @id @default(uuid())
-  name        String
-  image       String
-  description String
-  isPublic    Boolean  @default(true)
-  password    String?
-  createdAt   DateTime @default(now())
-  posts       Post[]
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  imageUrl     String?  @db.VarChar(255)
+  badgeCount   Int      @default(0)
+  postCount    Int      @default(0)
+  likeCount    Int      @default(0)
+  isPublic     Boolean  @default(true)
+  password     String?  @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  introduction String?  @db.VarChar(255) 
+
+  posts  Post[]
+  badges Badge[]
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  groupId   String
-  group     Group    @relation(fields: [groupId], references: [id])
-  title     String
-  content   String
-  image     String
-  tags      String[]
-  location  String?
-  createdAt DateTime @default(now())
-  comments  Comment[]
+  id           Int       @id @default(autoincrement())
+  groupId      Int
+  nickname     String    @db.VarChar(255)
+  title        String    @db.VarChar(255)
+  content      String
+  imageUrl     String?   @db.VarChar(255)
+  location     String?   @db.VarChar(255)
+  moment       DateTime?
+  isPublic     Boolean   @default(true)
+  password     String?   @db.VarChar(255)
+  createdAt    DateTime  @default(now())
+  likeCount    Int       @default(0)
+  commentCount Int       @default(0)
+  tags         String?   @db.VarChar(255)
+
+  group    Group     @relation(fields: [groupId], references: [id])
+  comments Comment[]
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id])
-  nickname  String
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  nickname  String   @db.VarChar(255)
   content   String
+  password  String?  @db.VarChar(255)
   createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id])
+}
+
+model Badge {
+  id         Int      @id @default(autoincrement())
+  groupId    Int
+  badge_type String   @db.VarChar(255)
+  createdAt  DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id])
 }
