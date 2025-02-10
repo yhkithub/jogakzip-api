@@ -4,9 +4,9 @@ const express = require('express');
 const cors = require('cors');
 
 // 각 라우터 모듈 (아래에서 생성할 예정)
-const groupRoutes = require('./routes/groupRoutes');
+//const groupRoutes = require('./routes/groupRoutes');
 const postRoutes = require('./routes/postRoutes');
-const commentRoutes = require('./routes/commentRoutes');
+//const commentRoutes = require('./routes/commentRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 // badgeRoutes 등 추가 가능
 
@@ -22,9 +22,9 @@ app.get('/', (req, res) => {
 });
 
 // 라우터 등록
-app.use('/api/groups', groupRoutes);
+//app.use('/api/groups', groupRoutes);
 app.use('/api/posts', postRoutes);
-app.use('/api/comments', commentRoutes);
+//app.use('/api/comments', commentRoutes);
 app.use('/api/image', imageRoutes);
 
 // 서버 실행
