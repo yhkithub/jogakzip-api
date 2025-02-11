@@ -2,52 +2,71 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+// 댓글 등록 (POST /api/posts/:postId/comments)
 exports.createComment = async (req, res) => {
   try {
-    const { postId, nickname, content } = req.body;
+    const { postId } = req.params;
+    const { nickname, content, password } = req.body;
+    if (!postId || !nickname || !content) {
+      return res.status(400).json({ message: "postId, nickname, and content are required." });
+    }
     const comment = await prisma.comment.create({
-      data: { postId, nickname, content },
+      data: {
+        postId: parseInt(postId),
+        nickname,
+        content,
+        password: password || null,
+      },
     });
     res.status(201).json(comment);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error creating comment:", error);
+    res.status(500).json({ message: "Error creating comment" });
   }
 };
 
-exports.getCommentsByPostId = async (req, res) => {
+// 댓글 목록 조회 (GET /api/posts/:postId/comments)
+exports.getCommentsByPost = async (req, res) => {
   try {
     const { postId } = req.params;
     const comments = await prisma.comment.findMany({
-      where: { postId },
+      where: { postId: parseInt(postId) },
     });
-    res.status(200).json(comments);
+    res.json(comments);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching comments:", error);
+    res.status(500).json({ message: "Error fetching comments" });
   }
 };
 
+// 댓글 수정 (PUT /api/comments/:commentId)
 exports.updateComment = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { content } = req.body;
-    const comment = await prisma.comment.update({
-      where: { id },
-      data: { content },
+    const { commentId } = req.params;
+    const { nickname, content, password } = req.body;
+    const existingComment = await prisma.comment.findUnique({ where: { id: parseInt(commentId) } });
+    if (!existingComment) return res.status(404).json({ message: "Comment not found" });
+    const updatedComment = await prisma.comment.update({
+      where: { id: parseInt(commentId) },
+      data: { nickname, content, password },
     });
-    res.status(200).json(comment);
+    res.json(updatedComment);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error updating comment:", error);
+    res.status(500).json({ message: "Error updating comment" });
   }
 };
 
+// 댓글 삭제 (DELETE /api/comments/:commentId)
 exports.deleteComment = async (req, res) => {
   try {
-    const { id } = req.params;
-    await prisma.comment.delete({
-      where: { id },
-    });
-    res.status(200).json({ message: 'Comment deleted successfully' });
+    const { commentId } = req.params;
+    const existingComment = await prisma.comment.findUnique({ where: { id: parseInt(commentId) } });
+    if (!existingComment) return res.status(404).json({ message: "Comment not found" });
+    await prisma.comment.delete({ where: { id: parseInt(commentId) } });
+    res.json({ message: "Comment deleted" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error deleting comment:", error);
+    res.status(500).json({ message: "Error deleting comment" });
   }
 };
