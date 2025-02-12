@@ -22,9 +22,8 @@ app.get('/', (req, res) => {
   res.send('조각집 백엔드 API 서버입니다!');
 });
 
-// 예시: /groups 경로에 대한 라우트 처리
 app.get('/groups', (req, res) => {
-  // 그룹 목록을 반환하는 로직
+  // 그룹 목록을 가져오는 코드
   res.json({ message: 'Groups fetched successfully' });
 });
 
@@ -35,6 +34,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/posts', postCommentRoutes);
 app.use('/api/image', imageRoutes);
+
 
 // 서버 실행
 const PORT = process.env.PORT || 4000;
