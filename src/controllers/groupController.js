@@ -6,12 +6,14 @@ const prisma = new PrismaClient();
 exports.createGroup = async (req, res) => {
   try {
     const { name, password, imageUrl, isPublic, introduction } = req.body;
-    // 요청 검증 (생략 가능)
+    if (!name) {
+      return res.status(400).json({ message: "Name is required." });
+    }
     const createdGroup = await prisma.group.create({
       data: { name, password, imageUrl, isPublic, introduction },
     });
     
-    // 응답 객체 재구성: API 명세에 맞게 민감 정보 제외, badges 필드는 빈 배열로 설정
+    // 응답 객체 구성 (민감 정보 제거, badges는 빈 배열로 반환)
     const responsePayload = {
       id: createdGroup.id,
       name: createdGroup.name,
@@ -20,7 +22,7 @@ exports.createGroup = async (req, res) => {
       isPublic: createdGroup.isPublic,
       likeCount: createdGroup.likeCount,
       postCount: createdGroup.postCount,
-      badges: [],  // 만약 그룹에 연결된 badge 정보가 있다면 해당 값을 넣고, 없으면 빈 배열로 반환
+      badges: [],  // badgeCount 대신 빈 배열
       createdAt: createdGroup.createdAt,
     };
 

@@ -7,6 +7,7 @@ const cors = require('cors');
 const groupRoutes = require('./routes/groupRoutes');
 const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const postCommentRoutes = require('./routes/postCommentRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 // badgeRoutes 등 추가 가능
 
@@ -21,10 +22,12 @@ app.get('/', (req, res) => {
   res.send('조각집 백엔드 API 서버입니다!');
 });
 
+
 // 라우터 등록
 app.use('/api/groups', groupRoutes);
-app.use('/api/posts', postRoutes);
+app.use('/api', postRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/posts', postCommentRoutes);
 app.use('/api/image', imageRoutes);
 
 // 서버 실행

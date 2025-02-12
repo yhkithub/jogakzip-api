@@ -1,21 +1,17 @@
-
+// src/controllers/imageController.js
 const multer = require('multer');
-const path = require('path');
+const upload = multer({ dest: 'uploads/' }); // 임시 저장 경로 지정
 
-const storage = multer.diskStorage({
-  destination: 'uploads/',
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}${path.extname(file.originalname)}`);
+exports.uploadImage = (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+    const imageUrl = `https://your-cdn.com/${req.file.filename}`;
+    res.status(200).json({ imageUrl });
+  } catch (error) {
+    console.error("Image upload error:", error);
+    res.status(500).json({ message: "Image upload error" });
   }
-});
-
-const upload = multer({ storage });
-
-exports.uploadImage = upload.single('image');
-
-exports.handleUploadedImage = (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: '이미지가 없습니다.' });
-  }
-  res.json({ url: `/uploads/${req.file.filename}` });
 };
+
