@@ -1,6 +1,6 @@
 
 ### 댓글 생성
-POST http://localhost:4000/api/comments
+POST http://localhost:4000/api/posts/post-id/comments
 Content-Type: application/json
 
 {

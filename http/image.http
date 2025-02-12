@@ -1,6 +1,6 @@
 
 ### 이미지 업로드
-POST http://localhost:4000/api/images
+POST http://localhost:4000/api/image
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary

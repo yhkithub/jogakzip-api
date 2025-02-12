@@ -5,9 +5,10 @@ Content-Type: application/json
 
 {
   "name": "Test Group",
-  "image": "group-image-url",
-  "description": "Test Description",
-  "isPublic": true
+  "password": "secret",
+  "imageUrl": "group-image-url",
+  "isPublic": true,
+  "introduction": "Test Description"
 }
 
 ### 그룹 목록 조회
