@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
 // 라우터 등록
 app.use('/api/groups', groupRoutes);
 app.use('/api', postRoutes);
+app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/posts', postCommentRoutes);
 app.use('/api/image', imageRoutes);
