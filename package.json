@@ -4,8 +4,9 @@
   "description": "조각집 게시물 API 백엔드",
   "main": "src/app.js",
   "scripts": {
-  "dev": "nodemon src/app.js",
-  "start": "node src/app.js"
+    "build": "npx prisma generate",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
