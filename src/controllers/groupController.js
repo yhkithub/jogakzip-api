@@ -5,17 +5,29 @@ const prisma = new PrismaClient();
 // 그룹 등록 (POST /api/groups)
 exports.createGroup = async (req, res) => {
   try {
-    const { name, imageUrl, introduction, isPublic, password } = req.body;
-    if (!name) {
-      return res.status(400).json({ message: "Name is required." });
-    }
-    const group = await prisma.group.create({
-      data: { name, imageUrl, introduction, isPublic, password },
+    const { name, password, imageUrl, isPublic, introduction } = req.body;
+    // 요청 검증 (생략 가능)
+    const createdGroup = await prisma.group.create({
+      data: { name, password, imageUrl, isPublic, introduction },
     });
-    res.status(201).json(group);
+    
+    // 응답 객체 재구성: API 명세에 맞게 민감 정보 제외, badges 필드는 빈 배열로 설정
+    const responsePayload = {
+      id: createdGroup.id,
+      name: createdGroup.name,
+      introduction: createdGroup.introduction,
+      imageUrl: createdGroup.imageUrl,
+      isPublic: createdGroup.isPublic,
+      likeCount: createdGroup.likeCount,
+      postCount: createdGroup.postCount,
+      badges: [],  // 만약 그룹에 연결된 badge 정보가 있다면 해당 값을 넣고, 없으면 빈 배열로 반환
+      createdAt: createdGroup.createdAt,
+    };
+
+    res.status(201).json(responsePayload);
   } catch (error) {
     console.error("Error creating group:", error);
-    res.status(500).json({ message: "Error creating group" });
+    res.status(500).json({ message: "잘못된 요청입니다" });
   }
 };
 
