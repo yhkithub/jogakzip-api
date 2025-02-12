@@ -103,10 +103,21 @@ exports.updatePost = async (req, res) => {
     // 게시물 존재 여부 확인
     const existingPost = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
     if (!existingPost) return res.status(404).json({ message: '게시물이 존재하지 않습니다.' });
-
+    
+    // tags가 배열이면 콤마로 구분된 문자열로 변환
+    const tagsString = Array.isArray(tags) ? tags.join(',') : tags;
+    
     const updatedPost = await prisma.post.update({
       where: { id: parseInt(postId) },
-      data: { title, content, imageUrl, tags, location, isPublic, password }
+      data: { 
+        title, 
+        content, 
+        imageUrl, 
+        tags: tagsString, 
+        location, 
+        isPublic, 
+        password 
+      }
     });
 
     res.json(updatedPost);
