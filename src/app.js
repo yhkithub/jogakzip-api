@@ -3,6 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+const app = express();
+
 // 각 라우터 모듈 (아래에서 생성할 예정)
 const groupRoutes = require('./routes/groupRoutes');
 const postRoutes = require('./routes/postRoutes');
@@ -10,8 +12,6 @@ const commentRoutes = require('./routes/commentRoutes');
 const postCommentRoutes = require('./routes/postCommentRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 // badgeRoutes 등 추가 가능
-
-const app = express();
 
 // 미들웨어 설정
 app.use(cors());
@@ -22,6 +22,11 @@ app.get('/', (req, res) => {
   res.send('조각집 백엔드 API 서버입니다!');
 });
 
+// 예시: /groups 경로에 대한 라우트 처리
+app.get('/groups', (req, res) => {
+  // 그룹 목록을 반환하는 로직
+  res.json({ message: 'Groups fetched successfully' });
+});
 
 // 라우터 등록
 app.use('/api/groups', groupRoutes);
