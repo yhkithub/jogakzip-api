@@ -34,7 +34,6 @@ exports.createGroup = async (req, res) => {
 };
 
 // 그룹 목록 조회 (GET /api/groups)
-// 그룹 목록 조회 (GET /api/groups)
 exports.getGroups = async (req, res) => {
   try {
     const groups = await prisma.group.findMany();
@@ -56,13 +55,13 @@ exports.getGroups = async (req, res) => {
   }
 };
 
-
 // 그룹 상세 조회 (GET /api/groups/:groupId)
 exports.getGroupById = async (req, res) => {
   try {
     const { groupId } = req.params;
     const group = await prisma.group.findUnique({
       where: { id: parseInt(groupId) },
+      include: { posts: true }  // 그룹에 속한 게시물 데이터를 포함시킵니다.
     });
     if (!group) return res.status(404).json({ message: "Group not found" });
     res.json(group);
