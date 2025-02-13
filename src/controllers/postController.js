@@ -216,11 +216,24 @@ exports.updatePost = async (req, res) => {
 exports.deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    // 존재 여부 확인
-    const existingPost = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
-    if (!existingPost) return res.status(404).json({ message: '게시물이 존재하지 않습니다.' });
+    
+    // 게시글이 존재하는지 확인
+    const existingPost = await prisma.post.findUnique({
+      where: { id: parseInt(postId) }
+    });
+    if (!existingPost) {
+      return res.status(404).json({ message: '게시물이 존재하지 않습니다.' });
+    }
 
-    await prisma.post.delete({ where: { id: parseInt(postId) } });
+    // 해당 게시글에 달린 댓글들을 먼저 삭제
+    await prisma.comment.deleteMany({
+      where: { postId: parseInt(postId) }
+    });
+
+    // 게시글 삭제
+    await prisma.post.delete({
+      where: { id: parseInt(postId) }
+    });
     res.json({ message: '게시물이 삭제되었습니다.' });
   } catch (error) {
     console.error("게시물 삭제 오류:", error);
