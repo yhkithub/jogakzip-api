@@ -23,12 +23,14 @@ app.get('/', (req, res) => {
 });
 
 // 라우터 등록
+app.use('/api/groups', groupRoutes);
+// /groups 경로도 동일하게 처리하도록 추가
 app.use('/groups', groupRoutes);
-app.use('/', postRoutes);
-app.use('/posts', postRoutes);
-app.use('/comments', commentRoutes);
-app.use('/posts', postCommentRoutes);
-app.use('/image', imageRoutes);
+app.use('/api', postRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/posts', postCommentRoutes);
+app.use('/api/image', imageRoutes);
 
 
 // 서버 실행
