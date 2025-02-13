@@ -56,19 +56,24 @@ exports.getGroups = async (req, res) => {
 };
 
 // 그룹 상세 조회 (GET /api/groups/:groupId)
+// src/controllers/groupController.js
 exports.getGroupById = async (req, res) => {
   try {
     const { groupId } = req.params;
-    // badges만 포함하도록 수정 (posts 제외)
+    // 그룹 자체와 badges는 포함하되, posts는 제외
     const group = await prisma.group.findUnique({
       where: { id: parseInt(groupId) },
       include: { 
-        badges: true
+        badges: true  // badges는 포함 (없으면 빈 배열로 처리)
       }
     });
     if (!group) return res.status(404).json({ message: "Group not found" });
     
-    // API 명세에 맞춘 응답 객체 구성
+    // 해당 그룹의 게시글 개수를 계산
+    const postsCount = await prisma.post.count({
+      where: { groupId: parseInt(groupId) }
+    });
+    
     const responsePayload = {
       id: group.id,
       name: group.name,
@@ -76,18 +81,19 @@ exports.getGroupById = async (req, res) => {
       imageUrl: group.imageUrl,
       isPublic: group.isPublic,
       likeCount: group.likeCount,
-      postCount: group.postCount,
+      postCount: postsCount, // 데이터베이스에 저장된 값 대신 계산된 값 사용
       createdAt: group.createdAt,
-      badges: group.badges || []  // badges가 null이면 빈 배열로 처리
+      badges: group.badges || []
     };
 
-    // 강제 직렬화하여 순수 JSON 객체로 반환
+    // 강제로 순수 JSON 객체로 직렬화해서 반환
     res.json(JSON.parse(JSON.stringify(responsePayload)));
   } catch (error) {
     console.error("Error fetching group:", error);
     res.status(500).json({ message: "Error fetching group" });
   }
 };
+
 
 // 그룹 수정 (PUT /api/groups/:groupId)
 exports.updateGroup = async (req, res) => {

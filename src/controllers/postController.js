@@ -63,35 +63,44 @@ exports.createPost = async (req, res) => {
 exports.getPostsByGroup = async (req, res) => {
   try {
     const { groupId } = req.params;
-    // 쿼리 파라미터로 page, pageSize 등을 받을 수 있도록 합니다.
     const currentPage = parseInt(req.query.page) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 50; // 기본값은 전체 데이터
+    const pageSize = parseInt(req.query.pageSize) || 50; // 기본값: 전체 항목
 
-    // 게시글 목록 조회 (comments는 명세 예시에 포함되지 않으므로 제외)
+    // 그룹에 속한 게시글 목록 조회 (comments는 명세 예시에 포함되지 않음)
     const posts = await prisma.post.findMany({
       where: { groupId: parseInt(groupId) }
-      // include: { comments: true }  // 명세에는 포함하지 않음
     });
-
-    // tags가 문자열이라면 배열로 변환
-    const formattedPosts = posts.map(post => ({
-      id: post.id,
-      nickname: post.nickname,
-      title: post.title,
-      imageUrl: post.imageUrl,
-      tags: typeof post.tags === 'string' ? post.tags.split(',') : (post.tags || []),
-      location: post.location,
-      // moment를 ISO 문자열로 변환 (필요에 따라 수정)
-      moment: post.moment ? new Date(post.moment).toISOString() : null,
-      isPublic: post.isPublic,
-      likeCount: post.likeCount,
-      commentCount: post.commentCount,
-      createdAt: post.createdAt
+    
+    // 각 게시글에 대해 tags를 배열로 변환하고, commentCount를 다시 계산
+    const formattedPosts = await Promise.all(posts.map(async post => {
+      // 만약 tags가 문자열이면 콤마로 구분하여 배열로 변환
+      const formattedTags = typeof post.tags === 'string'
+        ? post.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "")
+        : (post.tags || []);
+      
+      // 게시글의 실제 댓글 개수를 계산
+      const commentCount = await prisma.comment.count({
+        where: { postId: post.id }
+      });
+      
+      return {
+        id: post.id,
+        nickname: post.nickname,
+        title: post.title,
+        imageUrl: post.imageUrl,
+        tags: formattedTags,
+        location: post.location,
+        // moment가 있다면 ISO 문자열로 변환, 없으면 null
+        moment: post.moment ? new Date(post.moment).toISOString() : null,
+        isPublic: post.isPublic,
+        likeCount: post.likeCount,
+        commentCount: commentCount, // 계산된 댓글 수
+        createdAt: post.createdAt
+      };
     }));
-
+    
     const totalItemCount = formattedPosts.length;
     const totalPages = Math.ceil(totalItemCount / pageSize);
-    // 페이징 처리를 위해 데이터 슬라이싱 (필요 시)
     const paginatedData = formattedPosts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     res.json({
