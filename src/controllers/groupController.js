@@ -34,15 +34,28 @@ exports.createGroup = async (req, res) => {
 };
 
 // 그룹 목록 조회 (GET /api/groups)
+// 그룹 목록 조회 (GET /api/groups)
 exports.getGroups = async (req, res) => {
   try {
     const groups = await prisma.group.findMany();
-    res.json(groups);
+
+    // 예시로 단순 페이징 정보를 추가 (실제 페이징 로직이 필요하다면 수정)
+    const currentPage = 1;
+    const totalItemCount = groups.length;
+    const totalPages = 1; // 예시로 1페이지라고 가정
+
+    res.json({
+      currentPage,
+      totalPages,
+      totalItemCount,
+      data: groups  // 실제 그룹 배열
+    });
   } catch (error) {
     console.error("Error fetching groups:", error);
     res.status(500).json({ message: "Error fetching groups" });
   }
 };
+
 
 // 그룹 상세 조회 (GET /api/groups/:groupId)
 exports.getGroupById = async (req, res) => {
