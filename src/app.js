@@ -28,6 +28,7 @@ app.use('/api/groups', groupRoutes);
 app.use('/groups', groupRoutes);
 app.use('/api/groups', postRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/groups', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/posts', postCommentRoutes);
 app.use('/api/image', imageRoutes);
