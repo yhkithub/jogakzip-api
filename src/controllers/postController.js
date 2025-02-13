@@ -63,31 +63,46 @@ exports.createPost = async (req, res) => {
 exports.getPostsByGroup = async (req, res) => {
   try {
     const { groupId } = req.params;
+    // 쿼리 파라미터로 page, pageSize 등을 받을 수 있도록 합니다.
+    const currentPage = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 50; // 기본값은 전체 데이터
+
+    // 게시글 목록 조회 (comments는 명세 예시에 포함되지 않으므로 제외)
     const posts = await prisma.post.findMany({
-      where: { groupId: parseInt(groupId) },
-      include: { comments: true }
+      where: { groupId: parseInt(groupId) }
+      // include: { comments: true }  // 명세에는 포함하지 않음
     });
 
-    // tags가 문자열인 경우 콤마로 분리하여 배열로 변환
+    // tags가 문자열이라면 배열로 변환
     const formattedPosts = posts.map(post => ({
-      ...post,
-      tags: typeof post.tags === 'string' ? post.tags.split(',') : post.tags
+      id: post.id,
+      nickname: post.nickname,
+      title: post.title,
+      imageUrl: post.imageUrl,
+      tags: typeof post.tags === 'string' ? post.tags.split(',') : (post.tags || []),
+      location: post.location,
+      // moment를 ISO 문자열로 변환 (필요에 따라 수정)
+      moment: post.moment ? new Date(post.moment).toISOString() : null,
+      isPublic: post.isPublic,
+      likeCount: post.likeCount,
+      commentCount: post.commentCount,
+      createdAt: post.createdAt
     }));
 
-    // 단순 페이징 정보 예시
-    const currentPage = 1;
     const totalItemCount = formattedPosts.length;
-    const totalPages = 1; // 실제 페이징 로직에 따라 조정
+    const totalPages = Math.ceil(totalItemCount / pageSize);
+    // 페이징 처리를 위해 데이터 슬라이싱 (필요 시)
+    const paginatedData = formattedPosts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     res.json({
       currentPage,
       totalPages,
       totalItemCount,
-      data: formattedPosts
+      data: paginatedData
     });
   } catch (error) {
-    console.error("게시물 목록 조회 오류:", error);
-    res.status(500).json({ message: '게시물 목록 조회 중 오류 발생' });
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Error fetching posts" });
   }
 };
 

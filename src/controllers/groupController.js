@@ -59,31 +59,30 @@ exports.getGroups = async (req, res) => {
 exports.getGroupById = async (req, res) => {
   try {
     const { groupId } = req.params;
-    // posts는 포함하지 않고 badges만 포함하도록 설정합니다.
+    // badges만 포함하도록 수정 (posts 제외)
     const group = await prisma.group.findUnique({
       where: { id: parseInt(groupId) },
       include: { 
-        badges: true  // badges만 포함 (posts는 제거)
+        badges: true
       }
     });
     if (!group) return res.status(404).json({ message: "Group not found" });
     
-    // API 명세에 맞게 응답 객체 구성
+    // API 명세에 맞춘 응답 객체 구성
     const responsePayload = {
       id: group.id,
       name: group.name,
+      introduction: group.introduction,
       imageUrl: group.imageUrl,
       isPublic: group.isPublic,
       likeCount: group.likeCount,
-      badges: group.badges || [],  // badges가 null이면 빈 배열로 처리
       postCount: group.postCount,
       createdAt: group.createdAt,
-      introduction: group.introduction
+      badges: group.badges || []  // badges가 null이면 빈 배열로 처리
     };
 
-    // 강제로 순수한 JSON 객체로 직렬화 (Next.js 관련 내부 참조 문제 예방)
-    const serializedResponse = JSON.parse(JSON.stringify(responsePayload));
-    res.json(serializedResponse);
+    // 강제 직렬화하여 순수 JSON 객체로 반환
+    res.json(JSON.parse(JSON.stringify(responsePayload)));
   } catch (error) {
     console.error("Error fetching group:", error);
     res.status(500).json({ message: "Error fetching group" });
