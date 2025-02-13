@@ -22,11 +22,6 @@ app.get('/', (req, res) => {
   res.send('조각집 백엔드 API 서버입니다!');
 });
 
-app.get('/groups', (req, res) => {
-  // 그룹 목록을 가져오는 코드
-  res.json({ message: 'Groups fetched successfully' });
-});
-
 // 라우터 등록
 app.use('/api/groups', groupRoutes);
 app.use('/api', postRoutes);
@@ -41,3 +36,5 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app;
