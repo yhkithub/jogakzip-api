@@ -4,10 +4,10 @@ const router = express.Router();
 const postController = require('../controllers/postController');
 
 // 그룹 내 게시물 등록: POST /api/groups/:groupId/posts
-router.post('/groups/:groupId/posts', postController.createPost);
+router.post('/:groupId/posts', postController.createPost);
 
 // 그룹 내 게시물 목록 조회: GET /api/groups/:groupId/posts
-router.get('/groups/:groupId/posts', postController.getPostsByGroup);
+router.get('/:groupId/posts', postController.getPostsByGroup);
 
 // 게시물 상세 조회: GET /api/posts/:postId
 router.get('/:postId', postController.getPostById);

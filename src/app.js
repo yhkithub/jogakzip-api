@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
 app.use('/api/groups', groupRoutes);
 // /groups 경로도 동일하게 처리하도록 추가
 app.use('/groups', groupRoutes);
+app.use('/api/groups', postRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/posts', postCommentRoutes);
