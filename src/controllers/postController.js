@@ -7,55 +7,42 @@ const prisma = new PrismaClient();
  */
 exports.createPost = async (req, res) => {
   try {
-    // URL에서 groupId를 가져옵니다.
     const { groupId } = req.params;
-    // 요청 본문에서 API 명세에 따라 필요한 값을 추출합니다.
-    // API 명세에 따라 요청 본문은 postPassword와 groupPassword를 포함합니다.
-    const { 
-      nickname, 
-      title, 
-      content, 
-      postPassword,   // 게시글 비밀번호 (실제 Post 모델의 password 필드로 저장)
-      groupPassword,  // (추후 그룹 비밀번호 검증에 사용할 수 있음)
-      imageUrl, 
-      tags,           // 배열 형태가 올 것으로 예상됨
-      location, 
-      moment, 
-      isPublic 
-    } = req.body;
+    let { nickname, title, content, postPassword, groupPassword, imageUrl, tags, location, moment, isPublic } = req.body;
     
-    // 필수 값 검증
     if (!groupId || !title || !content) {
       return res.status(400).json({ message: 'groupId, title, content는 필수입니다.' });
+    }
+    
+    // 이미지 URL이 제공되지 않았다면 기본 이미지 URL 사용
+    if (!imageUrl) {
+      imageUrl = 'https://raw.githubusercontent.com/yourusername/jogakzip-api/main/public/images/test.png';
     }
     
     // tags가 배열이면 콤마로 구분된 문자열로 변환
     const tagsString = Array.isArray(tags) ? tags.join(',') : tags;
     
-    // (추후 그룹 비밀번호 검증 로직을 추가할 수 있음)
-
     const newPost = await prisma.post.create({
       data: {
         groupId: parseInt(groupId),
         nickname: nickname || '익명',
         title,
         content,
-        imageUrl: imageUrl || null,
+        imageUrl: imageUrl,
         tags: tagsString || null,
         location: location || null,
         moment: moment ? new Date(moment) : null,
         isPublic: isPublic !== undefined ? isPublic : true,
-        password: postPassword || null  // postPassword를 저장
+        password: postPassword || null  
       }
     });
     
-    // 생성된 게시물 객체를 반환 (HTTP 상태 코드는 201 Created 권장)
     res.status(201).json(newPost);
   } catch (error) {
     console.error("게시물 생성 오류:", error);
     res.status(500).json({ message: '게시물 등록 중 오류 발생' });
   }
-};  
+}; 
 
 /**
  * 게시물 목록 조회 (GET /api/groups/{groupId}/posts)

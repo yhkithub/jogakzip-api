@@ -5,15 +5,19 @@ const prisma = new PrismaClient();
 // 그룹 등록 (POST /api/groups)
 exports.createGroup = async (req, res) => {
   try {
-    const { name, password, imageUrl, isPublic, introduction } = req.body;
+    let { name, password, imageUrl, isPublic, introduction } = req.body;
     if (!name) {
       return res.status(400).json({ message: "Name is required." });
     }
+    // 이미지 URL이 제공되지 않은 경우 기본 이미지 URL 할당
+    if (!imageUrl) {
+      imageUrl = 'https://raw.githubusercontent.com/yourusername/jogakzip-api/main/public/images/test.png';
+    }
+    
     const createdGroup = await prisma.group.create({
       data: { name, password, imageUrl, isPublic, introduction },
     });
     
-    // 응답 객체 구성 (민감 정보 제거, badges는 빈 배열로 반환)
     const responsePayload = {
       id: createdGroup.id,
       name: createdGroup.name,
@@ -22,7 +26,7 @@ exports.createGroup = async (req, res) => {
       isPublic: createdGroup.isPublic,
       likeCount: createdGroup.likeCount,
       postCount: createdGroup.postCount,
-      badges: [],  // badgeCount 대신 빈 배열
+      badges: [],  
       createdAt: createdGroup.createdAt,
     };
 
