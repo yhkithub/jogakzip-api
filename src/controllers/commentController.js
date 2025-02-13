@@ -29,13 +29,35 @@ exports.createComment = async (req, res) => {
 exports.getCommentsByPost = async (req, res) => {
   try {
     const { postId } = req.params;
+    const currentPage = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 50; // 기본값 전체 댓글
+
+    // 댓글 목록 조회
     const comments = await prisma.comment.findMany({
-      where: { postId: parseInt(postId) },
+      where: { postId: parseInt(postId) }
     });
-    res.json(comments);
+
+    // password 필드 제거하고 필요한 필드만 선택
+    const formattedComments = comments.map(comment => ({
+      id: comment.id,
+      nickname: comment.nickname,
+      content: comment.content,
+      createdAt: comment.createdAt
+    }));
+
+    const totalItemCount = formattedComments.length;
+    const totalPages = Math.ceil(totalItemCount / pageSize);
+    const paginatedData = formattedComments.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+    res.json({
+      currentPage,
+      totalPages,
+      totalItemCount,
+      data: paginatedData
+    });
   } catch (error) {
-    console.error("Error fetching comments:", error);
-    res.status(500).json({ message: "Error fetching comments" });
+    console.error("댓글 목록 조회 오류:", error);
+    res.status(500).json({ message: "댓글 목록 조회 중 오류 발생" });
   }
 };
 

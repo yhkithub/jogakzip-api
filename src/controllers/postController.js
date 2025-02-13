@@ -125,12 +125,50 @@ exports.getPostsByGroup = async (req, res) => {
 exports.getPostById = async (req, res) => {
   try {
     const { postId } = req.params;
+    // 게시글 상세 조회 시 comments는 include하지 않고, password도 노출하지 않음.
     const post = await prisma.post.findUnique({
       where: { id: parseInt(postId) },
-      include: { comments: true }
+      // comments 포함하지 않음; 필요하다면 commentCount는 별도로 계산
     });
-    if (!post) return res.status(404).json({ message: '게시물을 찾을 수 없습니다.' });
-    res.json(post);
+    if (!post) {
+      return res.status(404).json({ message: '게시물을 찾을 수 없습니다.' });
+    }
+    
+    // tags 필드: 문자열인 경우 배열로 변환, 아니면 빈 배열 처리
+    const formattedTags = typeof post.tags === 'string'
+      ? post.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "")
+      : (post.tags || []);
+    
+    // moment 필드: 존재하면 유효한 날짜인지 확인하고 ISO 문자열로 변환, 아니면 null
+    let formattedMoment = null;
+    if (post.moment) {
+      const d = new Date(post.moment);
+      formattedMoment = isNaN(d.getTime()) ? null : d.toISOString();
+    }
+    
+    // 만약 commentCount가 별도로 계산되어야 한다면, (예: 현재 저장된 값이 부정확하다면)
+    // const commentCount = await prisma.comment.count({ where: { postId: post.id } });
+    // 여기서는 post.commentCount를 그대로 사용한다고 가정
+    
+    // API 명세 예시에 맞게 password와 comments 필드는 제거합니다.
+    const formattedPost = {
+      id: post.id,
+      groupId: post.groupId,
+      nickname: post.nickname,
+      title: post.title,
+      content: post.content,
+      imageUrl: post.imageUrl,
+      tags: formattedTags,
+      location: post.location,
+      moment: formattedMoment,
+      isPublic: post.isPublic,
+      likeCount: post.likeCount,
+      commentCount: post.commentCount, // 또는 위에서 계산한 commentCount
+      createdAt: post.createdAt
+    };
+
+    // 응답을 순수 JSON 객체로 직렬화해서 반환
+    res.json(JSON.parse(JSON.stringify(formattedPost)));
   } catch (error) {
     console.error("게시물 상세 조회 오류:", error);
     res.status(500).json({ message: '게시물 상세 조회 중 오류 발생' });
