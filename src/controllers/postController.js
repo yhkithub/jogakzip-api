@@ -67,21 +67,27 @@ exports.getPostsByGroup = async (req, res) => {
       where: { groupId: parseInt(groupId) },
       include: { comments: true }
     });
-    
-    // 단순 페이징 정보 예시 (실제 페이징 로직 필요 시 수정)
+
+    // tags가 문자열인 경우 콤마로 분리하여 배열로 변환
+    const formattedPosts = posts.map(post => ({
+      ...post,
+      tags: typeof post.tags === 'string' ? post.tags.split(',') : post.tags
+    }));
+
+    // 단순 페이징 정보 예시
     const currentPage = 1;
-    const totalItemCount = posts.length;
-    const totalPages = 1; // 예시로 1페이지라고 가정
-    
+    const totalItemCount = formattedPosts.length;
+    const totalPages = 1; // 실제 페이징 로직에 따라 조정
+
     res.json({
       currentPage,
       totalPages,
       totalItemCount,
-      data: posts
+      data: formattedPosts
     });
   } catch (error) {
-    console.error("Error fetching posts:", error);
-    res.status(500).json({ message: "Error fetching posts" });
+    console.error("게시물 목록 조회 오류:", error);
+    res.status(500).json({ message: '게시물 목록 조회 중 오류 발생' });
   }
 };
 
