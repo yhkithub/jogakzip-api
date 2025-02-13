@@ -42,16 +42,27 @@ exports.getGroups = async (req, res) => {
   try {
     const groups = await prisma.group.findMany();
 
+    // 각 그룹에 대해 게시물 수를 계산하여 응답 객체에 포함
+    const groupsWithPostCount = await Promise.all(groups.map(async group => {
+      const postCount = await prisma.post.count({
+        where: { groupId: group.id }
+      });
+      return {
+        ...group,
+        postCount  // DB에 저장된 값 대신 계산된 값을 사용
+      };
+    }));
+
     // 예시로 단순 페이징 정보를 추가 (실제 페이징 로직이 필요하다면 수정)
     const currentPage = 1;
-    const totalItemCount = groups.length;
+    const totalItemCount = groupsWithPostCount.length;
     const totalPages = 1; // 예시로 1페이지라고 가정
 
     res.json({
       currentPage,
       totalPages,
       totalItemCount,
-      data: groups  // 실제 그룹 배열
+      data: groupsWithPostCount
     });
   } catch (error) {
     console.error("Error fetching groups:", error);

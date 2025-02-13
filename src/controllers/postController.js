@@ -11,25 +11,19 @@ exports.createPost = async (req, res) => {
   try {
     const { groupId } = req.params;
     let { nickname, title, content, postPassword, groupPassword, imageUrl, tags, location, moment, isPublic } = req.body;
-
+    
     if (!groupId || !title || !content) {
       return res.status(400).json({ message: 'groupId, title, content는 필수입니다.' });
     }
-
+    
     // 이미지 URL이 제공되지 않았다면 기본 이미지 URL 사용
     if (!imageUrl) {
       imageUrl = 'https://raw.githubusercontent.com/yhkithub/jogakzip-api/main/public/images/test.png';
     }
-
+    
     // tags가 배열이면 콤마로 구분된 문자열로 변환
     const tagsString = Array.isArray(tags) ? tags.join(',') : tags;
-
-    // postPassword가 있으면 bcrypt로 해싱
-    let hashedPassword = null;
-    if (postPassword) {
-      hashedPassword = await bcrypt.hash(postPassword, SALT_ROUNDS);
-    }
-
+    
     const newPost = await prisma.post.create({
       data: {
         groupId: parseInt(groupId),
@@ -41,10 +35,16 @@ exports.createPost = async (req, res) => {
         location: location || null,
         moment: moment ? new Date(moment) : null,
         isPublic: isPublic !== undefined ? isPublic : true,
-        password: hashedPassword  // 해싱된 비밀번호 저장
+        password: postPassword || null  
       }
     });
-
+    
+    // 게시물이 생성되면 해당 그룹의 postCount를 1 증가시킵니다.
+    await prisma.group.update({
+      where: { id: parseInt(groupId) },
+      data: { postCount: { increment: 1 } }
+    });
+    
     res.status(201).json(newPost);
   } catch (error) {
     console.error("게시물 생성 오류:", error);
@@ -220,6 +220,8 @@ exports.deletePost = async (req, res) => {
       return res.status(404).json({ message: '게시물이 존재하지 않습니다.' });
     }
 
+    const groupId = existingPost.groupId;
+
     // 해당 게시글에 달린 댓글들을 먼저 삭제
     await prisma.comment.deleteMany({
       where: { postId: parseInt(postId) }
@@ -229,6 +231,13 @@ exports.deletePost = async (req, res) => {
     await prisma.post.delete({
       where: { id: parseInt(postId) }
     });
+
+    // 그룹의 postCount를 1 감소시킵니다.
+    await prisma.group.update({
+      where: { id: parseInt(groupId) },
+      data: { postCount: { decrement: 1 } }
+    });
+
     res.json({ message: '게시물이 삭제되었습니다.' });
   } catch (error) {
     console.error("게시물 삭제 오류:", error);
