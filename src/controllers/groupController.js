@@ -62,11 +62,17 @@ exports.getGroupById = async (req, res) => {
     const group = await prisma.group.findUnique({
       where: { id: parseInt(groupId) },
       include: { 
-        posts: true,     // 게시물 목록
-        badges: true     // 배지 목록 (만약 그룹에 관련된 배지 정보가 있다면)
+        posts: true,    // 게시물 목록 포함
+        badges: true    // 배지 목록 포함 (프론트엔드에서 badges 배열을 기대하는 경우)
       }
     });
     if (!group) return res.status(404).json({ message: "Group not found" });
+    
+    // 만약 badges가 null이면 빈 배열로 대체 (방어적 처리)
+    if (!group.badges) {
+      group.badges = [];
+    }
+    
     res.json(group);
   } catch (error) {
     console.error("Error fetching group:", error);
