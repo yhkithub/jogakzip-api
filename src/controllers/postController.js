@@ -66,19 +66,24 @@ exports.getPostsByGroup = async (req, res) => {
     const currentPage = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 50; // 기본값: 전체 항목
 
-    // 그룹에 속한 게시글 목록 조회 (comments는 명세 예시에 포함되지 않음)
     const posts = await prisma.post.findMany({
       where: { groupId: parseInt(groupId) }
     });
     
-    // 각 게시글에 대해 tags를 배열로 변환하고, commentCount를 다시 계산
     const formattedPosts = await Promise.all(posts.map(async post => {
-      // 만약 tags가 문자열이면 콤마로 구분하여 배열로 변환
+      // tags가 문자열인 경우 배열로 변환
       const formattedTags = typeof post.tags === 'string'
         ? post.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "")
         : (post.tags || []);
       
-      // 게시글의 실제 댓글 개수를 계산
+      // moment 값 처리: post.moment가 존재하면 유효한 날짜인지 체크
+      let formattedMoment = null;
+      if (post.moment) {
+        const d = new Date(post.moment);
+        formattedMoment = isNaN(d.getTime()) ? null : d.toISOString();
+      }
+      
+      // 실제 댓글 수를 계산 (필요하다면)
       const commentCount = await prisma.comment.count({
         where: { postId: post.id }
       });
@@ -90,11 +95,10 @@ exports.getPostsByGroup = async (req, res) => {
         imageUrl: post.imageUrl,
         tags: formattedTags,
         location: post.location,
-        // moment가 있다면 ISO 문자열로 변환, 없으면 null
-        moment: post.moment ? new Date(post.moment).toISOString() : null,
+        moment: formattedMoment,
         isPublic: post.isPublic,
         likeCount: post.likeCount,
-        commentCount: commentCount, // 계산된 댓글 수
+        commentCount: commentCount,
         createdAt: post.createdAt
       };
     }));
