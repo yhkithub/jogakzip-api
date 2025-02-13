@@ -16,52 +16,55 @@
 
 ## 프로젝트 구조
 
-- `.env`
-- `.gitignore`
-- `api/`
-  - `index.js`
-- `generated-icon.png`
-- `http/`
-  - `comment.http`
-  - `group.http`
-  - `image.http`
-  - `post.http`
-- `package.json`
-- `prisma/`
-  - `migrations/`
-    - `20250210161508_init/`
-      - `migration_lock.toml`
-  - `schema.prisma`
-  - `seed.js`
-  - `updateMoment.js`
-- `public/`
-  - `images/`
-    - `test.png`
-- `README.md`
-- `replit.nix`
-- `replit.toml`
-- `src/`
-  - `app.js`
-  - `controllers/`
-    - `commentController.js`
-    - `groupController.js`
-    - `imageController.js`
-    - `postController.js`
-  - `middlewares/`
-    - `auth.js`
-  - `routes/`
-    - `badgeRoutes.js`
-    - `commentRoutes.js`
-    - `groupRoutes.js`
-    - `imageRoutes.js`
-    - `postCommentRoutes.js`
-    - `postRoutes.js`
-  - `services/`
-    - `badgeService.js`
-  - `utils/`
-    - `hashUtils.js`
-- `uploads/`
-- `vercel.json`
+```
+.
+├── .env
+├── .gitignore
+├── api/
+│   └── index.js
+├── generated-icon.png
+├── http/
+│   ├── comment.http
+│   ├── group.http
+│   ├── image.http
+│   └── post.http
+├── package.json
+├── prisma/
+│   ├── migrations/
+│   │   └── 20250210161508_init/
+│   │       └── migration_lock.toml
+│   ├── schema.prisma
+│   ├── seed.js
+│   └── updateMoment.js
+├── public/
+│   └── images/
+│       └── test.png
+├── README.md
+├── replit.nix
+├── replit.toml
+├── src/
+│   ├── app.js
+│   ├── controllers/
+│   │   ├── commentController.js
+│   │   ├── groupController.js
+│   │   ├── imageController.js
+│   │   └── postController.js
+│   ├── middlewares/
+│   │   └── auth.js
+│   ├── routes/
+│   │   ├── badgeRoutes.js
+│   │   ├── commentRoutes.js
+│   │   ├── groupRoutes.js
+│   │   ├── imageRoutes.js
+│   │   ├── postCommentRoutes.js
+│   │   └── postRoutes.js
+│   ├── services/
+│   │   └── badgeService.js
+│   └── utils/
+│       └── hashUtils.js
+├── uploads/
+└── vercel.json
+```
 
 ### 주요 디렉토리 및 파일 설명
 
