@@ -1,6 +1,8 @@
 // src/controllers/postController.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const bcrypt = require('bcrypt');
+const SALT_ROUNDS = 10;
 
 /**
  * 게시물 등록 (POST /api/groups/{groupId}/posts)
@@ -9,19 +11,25 @@ exports.createPost = async (req, res) => {
   try {
     const { groupId } = req.params;
     let { nickname, title, content, postPassword, groupPassword, imageUrl, tags, location, moment, isPublic } = req.body;
-    
+
     if (!groupId || !title || !content) {
       return res.status(400).json({ message: 'groupId, title, content는 필수입니다.' });
     }
-    
+
     // 이미지 URL이 제공되지 않았다면 기본 이미지 URL 사용
     if (!imageUrl) {
       imageUrl = 'https://raw.githubusercontent.com/yhkithub/jogakzip-api/main/public/images/test.png';
     }
-    
+
     // tags가 배열이면 콤마로 구분된 문자열로 변환
     const tagsString = Array.isArray(tags) ? tags.join(',') : tags;
-    
+
+    // postPassword가 있으면 bcrypt로 해싱
+    let hashedPassword = null;
+    if (postPassword) {
+      hashedPassword = await bcrypt.hash(postPassword, SALT_ROUNDS);
+    }
+
     const newPost = await prisma.post.create({
       data: {
         groupId: parseInt(groupId),
@@ -33,16 +41,16 @@ exports.createPost = async (req, res) => {
         location: location || null,
         moment: moment ? new Date(moment) : null,
         isPublic: isPublic !== undefined ? isPublic : true,
-        password: postPassword || null  
+        password: hashedPassword  // 해싱된 비밀번호 저장
       }
     });
-    
+
     res.status(201).json(newPost);
   } catch (error) {
     console.error("게시물 생성 오류:", error);
     res.status(500).json({ message: '게시물 등록 중 오류 발생' });
   }
-}; 
+};
 
 /**
  * 게시물 목록 조회 (GET /api/groups/{groupId}/posts)
@@ -238,8 +246,9 @@ exports.verifyPostPassword = async (req, res) => {
     const post = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
     if (!post) return res.status(404).json({ message: '게시물이 존재하지 않습니다.' });
 
-    // 비밀번호 비교 (단순 문자열 비교; 실제 서비스에서는 암호화 필요)
-    if (post.password !== password) return res.status(401).json({ message: '비밀번호가 틀렸습니다.' });
+    // bcrypt.compare를 사용하여 입력된 비밀번호와 저장된 해시 비교
+    const match = await bcrypt.compare(password, post.password || '');
+    if (!match) return res.status(401).json({ message: '비밀번호가 틀렸습니다.' });
 
     res.json({ message: '비밀번호 확인되었습니다.' });
   } catch (error) {
