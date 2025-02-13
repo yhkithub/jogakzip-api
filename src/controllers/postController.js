@@ -16,7 +16,7 @@ exports.createPost = async (req, res) => {
     
     // 이미지 URL이 제공되지 않았다면 기본 이미지 URL 사용
     if (!imageUrl) {
-      imageUrl = 'https://raw.githubusercontent.com/yourusername/jogakzip-api/main/public/images/test.png';
+      imageUrl = 'https://raw.githubusercontent.com/yhkithub/jogakzip-api/main/public/images/test.png';
     }
     
     // tags가 배열이면 콤마로 구분된 문자열로 변환

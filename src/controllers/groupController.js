@@ -11,7 +11,7 @@ exports.createGroup = async (req, res) => {
     }
     // 이미지 URL이 제공되지 않은 경우 기본 이미지 URL 할당
     if (!imageUrl) {
-      imageUrl = 'https://raw.githubusercontent.com/yourusername/jogakzip-api/main/public/images/test.png';
+      imageUrl = 'https://raw.githubusercontent.com/yhkithub/jogakzip-api/main/public/images/test.png';
     }
     
     const createdGroup = await prisma.group.create({
