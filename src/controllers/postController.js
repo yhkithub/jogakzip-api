@@ -24,6 +24,12 @@ exports.createPost = async (req, res) => {
     // tags가 배열이면 콤마로 구분된 문자열로 변환
     const tagsString = Array.isArray(tags) ? tags.join(',') : tags;
     
+    // postPassword가 제공되었으면 bcrypt를 사용하여 해싱합니다.
+    let hashedPostPassword = null;
+    if (postPassword) {
+      hashedPostPassword = await bcrypt.hash(postPassword, 10);  // 10은 salt rounds 값
+    }
+    
     const newPost = await prisma.post.create({
       data: {
         groupId: parseInt(groupId),
@@ -35,7 +41,7 @@ exports.createPost = async (req, res) => {
         location: location || null,
         moment: moment ? new Date(moment) : null,
         isPublic: isPublic !== undefined ? isPublic : true,
-        password: postPassword || null  
+        password: hashedPostPassword  // 해싱된 비밀번호를 저장
       }
     });
     
@@ -51,6 +57,7 @@ exports.createPost = async (req, res) => {
     res.status(500).json({ message: '게시물 등록 중 오류 발생' });
   }
 };
+
 
 /**
  * 게시물 목록 조회 (GET /api/groups/{groupId}/posts)
